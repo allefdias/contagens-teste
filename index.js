@@ -75,6 +75,11 @@ function adicionarSetor() {
     setorCount++;
     const container = document.getElementById("setoresContainer");
 
+    // pega horários salvos ou padrão
+    let horariosInicio = JSON.parse(localStorage.getItem("horariosInicio")) || ["07:00", "13:00", "17:00", "19:00"];
+    let horariosFim = JSON.parse(localStorage.getItem("horariosFim")) || ["07:00", "19:00"];
+
+    // cria o card do setor
     const setorDiv = document.createElement("div");
     setorDiv.className = "setor";
     setorDiv.id = `setor-${setorCount}`;
@@ -84,14 +89,18 @@ function adicionarSetor() {
         <div class="setor-info">
             <input type="text" class="input-setor" placeholder="Nome do setor"
                 list="setoresList" onchange="salvarSetor(this.value)">
+
             <label>Entrada:
                 <input type="time" class="input-horario-inicio"
                     list="horariosInicioList"
+                    value="${horariosInicio[0]}" 
                     onchange="salvarHorario(this.value,'inicio')">
             </label>
+
             <label>Saída:
                 <input type="time" class="input-horario-fim"
                     list="horariosFimList"
+                    value="${horariosFim[0]}" 
                     onchange="salvarHorario(this.value,'fim')">
             </label>
         </div>
@@ -246,3 +255,4 @@ function enviarParaWhatsApp() {
     );
     window.open(`https://wa.me/?text=${relatorio}`, "_blank");
 }
+
