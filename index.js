@@ -24,17 +24,11 @@ const horariosPadrao = {
 };
 
 if (!localStorage.getItem("horariosInicio")) {
-    localStorage.setItem(
-        "horariosInicio",
-        JSON.stringify(horariosPadrao.inicio)
-    );
+    localStorage.setItem("horariosInicio", JSON.stringify(horariosPadrao.inicio));
 }
 
 if (!localStorage.getItem("horariosFim")) {
-    localStorage.setItem(
-        "horariosFim",
-        JSON.stringify(horariosPadrao.fim)
-    );
+    localStorage.setItem("horariosFim", JSON.stringify(horariosPadrao.fim));
 }
 
 /* ---------------- INIT ---------------- */
@@ -75,9 +69,12 @@ function adicionarSetor() {
     setorCount++;
     const container = document.getElementById("setoresContainer");
 
+    // atualiza datalists de horários antes de criar o setor
+    atualizarDatalistHorarios();
+
     // pega horários salvos ou padrão
-    let horariosInicio = JSON.parse(localStorage.getItem("horariosInicio")) || ["07:00", "13:00", "17:00", "19:00"];
-    let horariosFim = JSON.parse(localStorage.getItem("horariosFim")) || ["07:00", "19:00"];
+    let horariosInicio = JSON.parse(localStorage.getItem("horariosInicio")) || ["07:00", "13:00"];
+    let horariosFim = JSON.parse(localStorage.getItem("horariosFim")) || ["19:00"];
 
     // cria o card do setor
     const setorDiv = document.createElement("div");
@@ -255,4 +252,3 @@ function enviarParaWhatsApp() {
     );
     window.open(`https://wa.me/?text=${relatorio}`, "_blank");
 }
-
