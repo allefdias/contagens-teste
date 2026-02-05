@@ -69,17 +69,23 @@ function adicionarSetor() {
     setorCount++;
     const container = document.getElementById("setoresContainer");
 
-    // atualiza datalists de horários antes de criar o setor
+    // Atualiza datalists
     atualizarDatalistHorarios();
 
-    // pega horários salvos ou padrão
     let horariosInicio = JSON.parse(localStorage.getItem("horariosInicio")) || ["07:00", "13:00"];
     let horariosFim = JSON.parse(localStorage.getItem("horariosFim")) || ["19:00"];
 
-    // cria o card do setor
     const setorDiv = document.createElement("div");
     setorDiv.className = "setor";
     setorDiv.id = `setor-${setorCount}`;
+
+    // Cria options para select de entrada
+    let optionsInicio = horariosInicio.map(h => `<option value="${h}">${h}</option>`).join("");
+    optionsInicio += `<option value="outro">Outro...</option>`;
+
+    // Cria options para select de saída
+    let optionsFim = horariosFim.map(h => `<option value="${h}">${h}</option>`).join("");
+    optionsFim += `<option value="outro">Outro...</option>`;
 
     setorDiv.innerHTML = `
         <label><strong>Setor:</strong></label>
@@ -88,17 +94,19 @@ function adicionarSetor() {
                 list="setoresList" onchange="salvarSetor(this.value)">
 
             <label>Entrada:
-                <input type="time" class="input-horario-inicio"
-                    list="horariosInicioList"
-                    value="${horariosInicio[0]}" 
-                    onchange="salvarHorario(this.value,'inicio')">
+                <select class="select-horario-inicio" onchange="verificarOutroHorario(this,'inicio')">
+                    ${optionsInicio}
+                </select>
+                <input type="time" class="input-horario-inicio" style="display:none;"
+                       onchange="salvarHorario(this.value,'inicio')">
             </label>
 
             <label>Saída:
-                <input type="time" class="input-horario-fim"
-                    list="horariosFimList"
-                    value="${horariosFim[0]}" 
-                    onchange="salvarHorario(this.value,'fim')">
+                <select class="select-horario-fim" onchange="verificarOutroHorario(this,'fim')">
+                    ${optionsFim}
+                </select>
+                <input type="time" class="input-horario-fim" style="display:none;"
+                       onchange="salvarHorario(this.value,'fim')">
             </label>
         </div>
 
@@ -109,6 +117,18 @@ function adicionarSetor() {
 
     container.appendChild(setorDiv);
     adicionarNome(setorCount);
+}
+
+/* ---------------- FUNÇÃO PARA "OUTRO" ---------------- */
+function verificarOutroHorario(select, tipo) {
+    const input = select.nextElementSibling; // pega o input ao lado
+    if (select.value === "outro") {
+        input.style.display = "inline-block";
+        input.value = ""; // limpa
+    } else {
+        input.style.display = "none";
+        salvarHorario(select.value, tipo);
+    }
 }
 
 /* ---------------- NOMES ---------------- */
@@ -208,8 +228,15 @@ function gerarRelatorio() {
         const nomeSetor = setor.querySelector(".input-setor").value.trim();
         if (!nomeSetor) return;
 
-        const ini = setor.querySelector(".input-horario-inicio").value;
-        const fim = setor.querySelector(".input-horario-fim").value;
+        // seleciona valor do select ou input de "Outro"
+        let iniSelect = setor.querySelector(".select-horario-inicio").value;
+        let iniInput = setor.querySelector(".input-horario-inicio").value;
+        let ini = iniSelect === "outro" ? iniInput : iniSelect;
+
+        let fimSelect = setor.querySelector(".select-horario-fim").value;
+        let fimInput = setor.querySelector(".input-horario-fim").value;
+        let fim = fimSelect === "outro" ? fimInput : fimSelect;
+
         const nomes = setor.querySelectorAll(".nome-proc");
 
         let total = 0;
