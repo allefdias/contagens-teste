@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+  <head>
+    <meta charset="UTF-8">
+    <title>Contagens</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="style.css">
+
+    <!-- JS -->
+    <script src="script.js" defer=""></script>
+    <script type="text/javascript" src="./index.js" defer=""></script>
+    <link rel="stylesheet" href="./index.css">
+    <script type="text/javascript" src="./index.js" defer=""></script>
+    <link rel="stylesheet" href="./index.css">
+  </head>
+
+  <body>
+    <div class="container">
+
+      <h1>Contagens</h1>
+      <span id="dataHoje"></span>
+
+      <!-- CONTROLE DE DATA -->
+      <div class="controle-data">
+
+        <button id="btnAlterarData" onclick="alternarData()">Alterar data</button>
+        <input type="date" id="inputData">
+        <button id="btnConfirmarData" onclick="confirmarData()">Confirmar</button>
+      </div>
+
+      <!-- SETORES -->
+      <div id="setoresContainer"></div>
+      <div class="acoes">
+        <button onclick="adicionarSetor()">+ Adicionar Setor</button>
+
+      </div>
+      <!-- OBSERVAÇÕES -->
+      <div class="observacoes">
+        <label for="observacoes"><strong>Observações:</strong></label>
+        <textarea id="observacoes" rows="3" placeholder="Digite observações gerais, se necessário..."></textarea>
+      </div>
+      <!-- AÇÕES -->
+      <div class="acoes">
+        <button class="gerar" onclick="gerarRelatorio()">📄 Gerar Relatório</button>
+      </div>
+
+
+      <!-- RELATÓRIO -->
+      <div id="relatorio" class="output" style="display:none;"></div>
+
+      <!-- AÇÕES RELATÓRIO -->
+      <div class="acoes-relatorio">
+        <button id="btnEnviar" onclick="enviarParaWhatsApp()">📲 Enviar para WhatsApp</button>
+      </div>
+
+      <!-- DATALISTS -->
+      <datalist id="nomesSalvosList"></datalist>
+      <datalist id="setoresList"></datalist>
+      <datalist id="horariosInicioList"></datalist>
+      <datalist id="horariosFimList"></datalist>
+
+    </div>
+
+
+
+
+  </body>
+
+</html>
