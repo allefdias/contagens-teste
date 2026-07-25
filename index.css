@@ -68,6 +68,10 @@ h1 {
     margin-bottom: 12px;
 }
 
+.setor-info input[type="text"] {
+    width: 100%;
+}
+
 .setor-info label {
     display: flex;
     justify-content: space-between;
@@ -77,43 +81,10 @@ h1 {
     color: #374151;
 }
 
-/* ---------------- INPUTS UNIFORMES ---------------- */
-input[type="text"],
-input[type="number"],
-input[type="time"],
-textarea,
-select {
-    padding: 10px;
-    border: 1px solid #d1d5db;
-    border-radius: 10px;
-    font-family: inherit;
-    font-size: 0.9rem;
-    background-color: #ffffff;
-    transition: all 0.2s ease;
-}
-
-input:focus,
-select:focus,
-textarea:focus {
-    outline: none;
-    border-color: #2563eb;
-    box-shadow: 0 0 0 2px rgba(37,99,235,0.15);
-}
-
-/* ---------------- CAMPOS DE HORA / SELECTS ---------------- */
-.setor-info input[type="time"],
-.setor-info select {
-    width: 110px;
+/* ⏰ CAMPOS DE HORA */
+.setor-info input[type="time"] {
+    width: 90px;
     text-align: center;
-    cursor: pointer;
-}
-
-.setor-info select {
-    appearance: none; /* remove estilo nativo do select */
-    background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D'10'%20height%3D'10'%20viewBox%3D'0%200%2010%2010'%20xmlns%3D'http%3A//www.w3.org/2000/svg'%3E%3Cpolygon%20points%3D'0,0%2010,0%205,5'%20fill%3D'%236b7280'/%3E%3C/svg%3E");
-    background-repeat: no-repeat;
-    background-position: right 10px center;
-    background-size: 10px 10px;
 }
 
 /* ---------------- NOME E QUANTIDADE ---------------- */
@@ -134,6 +105,27 @@ textarea:focus {
     text-align: center;
 }
 
+/* ---------------- INPUTS ---------------- */
+input[type="text"],
+input[type="number"],
+input[type="time"],
+input[type="date"],
+textarea {
+    padding: 10px;
+    border: 1px solid #d1d5db;
+    border-radius: 10px;
+    font-family: inherit;
+    font-size: 0.9rem;
+    background-color: #ffffff;
+}
+
+input:focus,
+textarea:focus {
+    outline: none;
+    border-color: #2563eb;
+    box-shadow: 0 0 0 2px rgba(37,99,235,0.15);
+}
+
 /* ---------------- BOTÕES ---------------- */
 button {
     padding: 12px;
@@ -151,12 +143,27 @@ button:hover {
     box-shadow: 0 6px 12px rgba(0,0,0,0.15);
 }
 
+button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+}
+
+/* Botões específicos */
 button.repetir {
     background-color: #16a34a;
 }
 
 button.gerar {
     background-color: #f97316;
+}
+
+button.planilha {
+    background-color: #0d9488;
+}
+
+button.planilha:hover {
+    background-color: #0f766e;
 }
 
 button#btnEnviar {
@@ -215,15 +222,11 @@ button#btnEnviar:hover {
         flex-direction: column;
     }
 
-    /* Mantém nome e quantidade lado a lado */
     .nome-proc {
         flex-direction: row;
     }
 
-    button,
-    .setor-info select,
-    .input-nome,
-    .input-proc {
+    button {
         width: 100%;
     }
 }
