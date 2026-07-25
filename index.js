@@ -257,7 +257,7 @@ function enviarParaWhatsApp() {
 
 /* ---------------- ENVIAR GOOGLE SHEETS ---------------- */
 async function enviarParaGoogleSheets() {
-    if (!GOOGLE_SCRIPT_URL || GOOGLE_SCRIPT_URL === "SUA_URL_DO_GOOGLE_APPS_SCRIPT_AQUI") {
+    if (!GOOGLE_SCRIPT_URL || GOOGLE_SCRIPT_URL === "https://script.google.com/macros/s/AKfycbx4jWlUzmHVfpDaZC6A8eIM4nFz15yHn4D5PpMn-X0VsTJ5gIJcgwV23Pe640xHxx1N/exec") {
         alert("Por favor, configure a URL do seu Google Apps Script no arquivo script.js!");
         return;
     }
