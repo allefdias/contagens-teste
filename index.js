@@ -1,5 +1,5 @@
-// COLE AQUI A URL GERADA NO GOOGLE APPS SCRIPT
-const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyMFejxIxcPTsfM3rpWJCBXgsw9LC0Zf4_sGUfZA0c5mht-dDSblRGzNWDFOIRgzFw/exec";
+// COLE AQUI A NOVA URL GERADA NO GOOGLE APPS SCRIPT
+const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxMHA02cPFOQR0t1BSSpQUhcUiw3vRK2WUF7eo5P4pupwzBj2WSbaZHHvnz03jJSbf6/exec";
 
 let setorCount = 0;
 let dataSelecionada = new Date();
@@ -25,7 +25,6 @@ document.addEventListener("DOMContentLoaded", () => {
     atualizarDataTitulo();
     carregarNomesSalvos();
     carregarSetoresSalvos();
-    carregarHorariosSalvos();
     adicionarSetor();
 });
 
@@ -65,16 +64,6 @@ function adicionarSetor() {
         <div class="setor-info">
             <input type="text" class="input-setor" placeholder="Nome do setor"
                 list="setoresList" onchange="salvarSetor(this.value)">
-            <label>Entrada:
-                <input type="time" class="input-horario-inicio"
-                    list="horariosInicioList"
-                    onchange="salvarHorario(this.value,'inicio')">
-            </label>
-            <label>Saída:
-                <input type="time" class="input-horario-fim"
-                    list="horariosFimList"
-                    onchange="salvarHorario(this.value,'fim')">
-            </label>
         </div>
 
         <div class="nomesContainer" id="nomes-${setorCount}"></div>
@@ -135,27 +124,12 @@ function salvarSetor(nome) {
     }
 }
 
-function salvarHorario(valor, tipo) {
-    if (!valor) return;
-    const key = tipo === "inicio" ? "horariosInicio" : "horariosFim";
-    let lista = JSON.parse(localStorage.getItem(key)) || [];
-    if (!lista.includes(valor)) {
-        lista.push(valor);
-        localStorage.setItem(key, JSON.stringify(lista));
-        atualizarDatalistHorarios();
-    }
-}
-
 function carregarNomesSalvos() {
     atualizarDatalist("nomesSalvos", "nomesSalvosList");
 }
 
 function carregarSetoresSalvos() {
     atualizarDatalist("setoresSalvos", "setoresList");
-}
-
-function carregarHorariosSalvos() {
-    atualizarDatalistHorarios();
 }
 
 function atualizarDatalist(key, id) {
@@ -167,11 +141,6 @@ function atualizarDatalist(key, id) {
         o.value = v;
         dl.appendChild(o);
     });
-}
-
-function atualizarDatalistHorarios() {
-    atualizarDatalist("horariosInicio", "horariosInicioList");
-    atualizarDatalist("horariosFim", "horariosFimList");
 }
 
 /* ---------------- ESTRUTURA DOS DADOS ---------------- */
@@ -188,10 +157,7 @@ function extrairDadosFormulario() {
         const nomeSetor = setor.querySelector(".input-setor").value.trim();
         if (!nomeSetor) return;
 
-        const ini = setor.querySelector(".input-horario-inicio").value;
-        const fim = setor.querySelector(".input-horario-fim").value;
         const nomesDivs = setor.querySelectorAll(".nome-proc");
-
         const funcionarios = [];
 
         nomesDivs.forEach(n => {
@@ -205,8 +171,6 @@ function extrairDadosFormulario() {
         if (funcionarios.length > 0) {
             dados.setores.push({
                 nome: nomeSetor,
-                entrada: ini,
-                saida: fim,
                 funcionarios: funcionarios
             });
         }
@@ -228,7 +192,7 @@ function gerarRelatorio() {
 
     dados.setores.forEach(setor => {
         let totalSetor = 0;
-        let bloco = `*Setor: ${setor.nome}${setor.entrada && setor.saida ? ` ${setor.entrada} ÀS ${setor.saida}` : ""}*\n`;
+        let bloco = `*Setor: ${setor.nome}*\n`;
 
         setor.funcionarios.forEach(f => {
             bloco += `- ${f.nome}: ${f.qtd} Exames\n`;
