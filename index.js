@@ -1,3 +1,6 @@
+// COLE AQUI A URL GERADA NO GOOGLE APPS SCRIPT
+const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbx4jWlUzmHVfpDaZC6A8eIM4nFz15yHn4D5PpMn-X0VsTJ5gIJcgwV23Pe640xHxx1N/exec";
+
 let setorCount = 0;
 let dataSelecionada = new Date();
 
@@ -15,20 +18,6 @@ const setoresComuns = [
 
 if (!localStorage.getItem("setoresSalvos")) {
     localStorage.setItem("setoresSalvos", JSON.stringify(setoresComuns));
-}
-
-/* ---------------- HORÁRIOS PADRÃO ---------------- */
-const horariosPadrao = {
-    inicio: ["07:00", "13:00"],
-    fim: ["19:00"]
-};
-
-if (!localStorage.getItem("horariosInicio")) {
-    localStorage.setItem("horariosInicio", JSON.stringify(horariosPadrao.inicio));
-}
-
-if (!localStorage.getItem("horariosFim")) {
-    localStorage.setItem("horariosFim", JSON.stringify(horariosPadrao.fim));
 }
 
 /* ---------------- INIT ---------------- */
@@ -55,7 +44,6 @@ function alternarData() {
 function confirmarData() {
     const valor = document.getElementById("inputData").value;
     if (!valor) return;
-
     dataSelecionada = new Date(valor + "T00:00:00");
     atualizarDataTitulo();
 
@@ -64,49 +52,28 @@ function confirmarData() {
     document.getElementById("btnAlterarData").style.display = "inline-block";
 }
 
-/* ---------------- SETORES ---------------- */
 function adicionarSetor() {
     setorCount++;
     const container = document.getElementById("setoresContainer");
 
-    // Atualiza datalists
-    atualizarDatalistHorarios();
-
-    let horariosInicio = JSON.parse(localStorage.getItem("horariosInicio")) || ["07:00", "13:00"];
-    let horariosFim = JSON.parse(localStorage.getItem("horariosFim")) || ["19:00"];
-
     const setorDiv = document.createElement("div");
     setorDiv.className = "setor";
     setorDiv.id = `setor-${setorCount}`;
-
-    // Cria options para select de entrada
-    let optionsInicio = horariosInicio.map(h => `<option value="${h}">${h}</option>`).join("");
-    optionsInicio += `<option value="outro">Outro...</option>`;
-
-    // Cria options para select de saída
-    let optionsFim = horariosFim.map(h => `<option value="${h}">${h}</option>`).join("");
-    optionsFim += `<option value="outro">Outro...</option>`;
 
     setorDiv.innerHTML = `
         <label><strong>Setor:</strong></label>
         <div class="setor-info">
             <input type="text" class="input-setor" placeholder="Nome do setor"
                 list="setoresList" onchange="salvarSetor(this.value)">
-
             <label>Entrada:
-                <select class="select-horario-inicio" onchange="verificarOutroHorario(this,'inicio')">
-                    ${optionsInicio}
-                </select>
-                <input type="time" class="input-horario-inicio" style="display:none;"
-                       onchange="salvarHorario(this.value,'inicio')">
+                <input type="time" class="input-horario-inicio"
+                    list="horariosInicioList"
+                    onchange="salvarHorario(this.value,'inicio')">
             </label>
-
             <label>Saída:
-                <select class="select-horario-fim" onchange="verificarOutroHorario(this,'fim')">
-                    ${optionsFim}
-                </select>
-                <input type="time" class="input-horario-fim" style="display:none;"
-                       onchange="salvarHorario(this.value,'fim')">
+                <input type="time" class="input-horario-fim"
+                    list="horariosFimList"
+                    onchange="salvarHorario(this.value,'fim')">
             </label>
         </div>
 
@@ -117,18 +84,6 @@ function adicionarSetor() {
 
     container.appendChild(setorDiv);
     adicionarNome(setorCount);
-}
-
-/* ---------------- FUNÇÃO PARA "OUTRO" ---------------- */
-function verificarOutroHorario(select, tipo) {
-    const input = select.nextElementSibling; // pega o input ao lado
-    if (select.value === "outro") {
-        input.style.display = "inline-block";
-        input.value = ""; // limpa
-    } else {
-        input.style.display = "none";
-        salvarHorario(select.value, tipo);
-    }
 }
 
 /* ---------------- NOMES ---------------- */
@@ -219,63 +174,116 @@ function atualizarDatalistHorarios() {
     atualizarDatalist("horariosFim", "horariosFimList");
 }
 
-/* ---------------- RELATÓRIO ---------------- */
-function gerarRelatorio() {
-    const setores = document.querySelectorAll(".setor");
-    let texto = `📅 Data: ${dataSelecionada.toLocaleDateString("pt-BR")}\n\n`;
+/* ---------------- ESTRUTURA DOS DADOS ---------------- */
+function extrairDadosFormulario() {
+    const dados = {
+        data: dataSelecionada.toLocaleDateString("pt-BR"),
+        observacoes: document.getElementById("observacoes").value.trim(),
+        setores: []
+    };
 
-    setores.forEach(setor => {
+    const setoresDivs = document.querySelectorAll(".setor");
+
+    setoresDivs.forEach(setor => {
         const nomeSetor = setor.querySelector(".input-setor").value.trim();
         if (!nomeSetor) return;
 
-        // seleciona valor do select ou input de "Outro"
-        let iniSelect = setor.querySelector(".select-horario-inicio").value;
-        let iniInput = setor.querySelector(".input-horario-inicio").value;
-        let ini = iniSelect === "outro" ? iniInput : iniSelect;
+        const ini = setor.querySelector(".input-horario-inicio").value;
+        const fim = setor.querySelector(".input-horario-fim").value;
+        const nomesDivs = setor.querySelectorAll(".nome-proc");
 
-        let fimSelect = setor.querySelector(".select-horario-fim").value;
-        let fimInput = setor.querySelector(".input-horario-fim").value;
-        let fim = fimSelect === "outro" ? fimInput : fimSelect;
+        const funcionarios = [];
 
-        const nomes = setor.querySelectorAll(".nome-proc");
-
-        let total = 0;
-        let bloco = `*Setor: ${nomeSetor}${ini && fim ? ` ${ini} ÀS ${fim}` : ""}*\n`;
-
-        nomes.forEach(n => {
+        nomesDivs.forEach(n => {
             const nome = n.querySelector(".input-nome").value.trim();
             const qtd = parseInt(n.querySelector(".input-proc").value);
             if (nome && qtd > 0) {
-                bloco += `- ${nome}: ${qtd} Exames\n`;
-                total += qtd;
+                funcionarios.push({ nome, qtd });
             }
         });
 
-        if (total > 0) {
-            bloco += `*Total: ${total} Exames*\n\n`;
-            texto += bloco;
+        if (funcionarios.length > 0) {
+            dados.setores.push({
+                nome: nomeSetor,
+                entrada: ini,
+                saida: fim,
+                funcionarios: funcionarios
+            });
         }
     });
 
-    const obs = document.getElementById("observacoes").value.trim();
-    if (obs) {
-        texto += `*📝 Observações:*\n*${obs}*\n\n`;
+    return dados;
+}
+
+/* ---------------- RELATÓRIO ---------------- */
+function gerarRelatorio() {
+    const dados = extrairDadosFormulario();
+
+    if (dados.setores.length === 0) {
+        alert("Preencha pelo menos um setor com funcionários e quantidades de exames.");
+        return;
     }
 
-    if (texto.trim().length < 15) {
-        alert("Preencha pelo menos um setor.");
-        return;
+    let texto = `📅 Data: ${dados.data}\n\n`;
+
+    dados.setores.forEach(setor => {
+        let totalSetor = 0;
+        let bloco = `*Setor: ${setor.nome}${setor.entrada && setor.saida ? ` ${setor.entrada} ÀS ${setor.saida}` : ""}*\n`;
+
+        setor.funcionarios.forEach(f => {
+            bloco += `- ${f.nome}: ${f.qtd} Exames\n`;
+            totalSetor += f.qtd;
+        });
+
+        bloco += `*Total: ${totalSetor} Exames*\n\n`;
+        texto += bloco;
+    });
+
+    if (dados.observacoes) {
+        texto += `*📝 Observações:*\n*${dados.observacoes}*\n\n`;
     }
 
     document.getElementById("relatorio").innerText = texto.trim();
     document.getElementById("relatorio").style.display = "block";
-    document.getElementById("btnEnviar").style.display = "inline-block";
+    document.getElementById("acoesRelatorio").style.display = "flex";
 }
 
-/* ---------------- WHATSAPP ---------------- */
+/* ---------------- ENVIAR WHATSAPP ---------------- */
 function enviarParaWhatsApp() {
-    const relatorio = encodeURIComponent(
-        document.getElementById("relatorio").innerText
-    );
-    window.open(`https://wa.me/?text=${relatorio}`, "_blank");
+    const relatorio = encodeURIComponent(document.getElementById("relatorio").innerText);
+    const url = `https://wa.me/?text=${relatorio}`;
+    window.open(url, "_blank");
+}
+
+/* ---------------- ENVIAR GOOGLE SHEETS ---------------- */
+async function enviarParaGoogleSheets() {
+    if (!GOOGLE_SCRIPT_URL || GOOGLE_SCRIPT_URL === "SUA_URL_DO_GOOGLE_APPS_SCRIPT_AQUI") {
+        alert("Por favor, configure a URL do seu Google Apps Script no arquivo script.js!");
+        return;
+    }
+
+    const dados = extrairDadosFormulario();
+    const btnPlanilha = document.getElementById("btnEnviarPlanilha");
+
+    try {
+        btnPlanilha.disabled = true;
+        btnPlanilha.innerText = "⏳ Enviando dados...";
+
+        await fetch(GOOGLE_SCRIPT_URL, {
+            method: "POST",
+            mode: "no-cors",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(dados)
+        });
+
+        alert("✅ Dados salvos na planilha com sucesso!");
+    } catch (error) {
+        console.error("Erro ao enviar:", error);
+        alert("❌ Ocorreu um erro ao salvar na planilha. Tente novamente.");
+    } finally {
+        btnPlanilha.disabled = false;
+        btnPlanilha.innerText = "📊 Salvar no Google Sheets";
+    }
 }
