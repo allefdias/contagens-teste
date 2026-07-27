@@ -1,5 +1,5 @@
 // COLE AQUI A NOVA URL GERADA NO GOOGLE APPS SCRIPT
-const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxMHA02cPFOQR0t1BSSpQUhcUiw3vRK2WUF7eo5P4pupwzBj2WSbaZHHvnz03jJSbf6/exec";
+const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyV7x7PUB07V2Kym8uiNsV4pHEwx9wGtjnM14XY-EfWGOt36P_q46FzWv_FwWKe9N75/exec";
 
 let setorCount = 0;
 let dataSelecionada = new Date();
