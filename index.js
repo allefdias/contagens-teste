@@ -82,7 +82,7 @@ function adicionarNome(setorId, valor = "") {
     div.className = "nome-proc";
 
     div.innerHTML = `
-        <input type="text" class="input-nome" placeholder="Nome"
+        <input type="text" class="input-nome" placeholder="Nome e Sobrenome"
             list="nomesSalvosList" value="${valor}"
             onchange="salvarNome(this.value)">
         <input type="number" class="input-proc" placeholder="Qtd" min="0">
@@ -98,27 +98,44 @@ function repetirNomes(setorId) {
     container.innerHTML = "";
 
     nomes.forEach(n => {
-        const nome = n.querySelector(".input-nome").value.trim();
+        const nome = n.querySelector(".input-nome").value.trim().toUpperCase();
         if (nome) adicionarNome(setorId, nome);
     });
 }
 
+/* ---------------- TRATAMENTO DE TEXTO ---------------- */
+function formatarCaixaAlta(texto) {
+    if (!texto) return "";
+    // Remove espaços extras nas pontas, duplos espaços no meio e passa tudo para UPPERCASE
+    return texto.trim().replace(/\s+/g, ' ').toUpperCase();
+}
+
+function validarNomeSobrenome(nome) {
+    const partes = nome.split(" ");
+    // Valida se possui pelo menos 2 termos com no mínimo 2 letras cada
+    return partes.length >= 2 && partes.every(p => p.length >= 2);
+}
+
 /* ---------------- LOCALSTORAGE ---------------- */
 function salvarNome(nome) {
-    if (!nome) return;
+    const nomeLimpo = formatarCaixaAlta(nome);
+    if (!nomeLimpo) return;
+
     let lista = JSON.parse(localStorage.getItem("nomesSalvos")) || [];
-    if (!lista.includes(nome)) {
-        lista.push(nome);
+    if (!lista.includes(nomeLimpo)) {
+        lista.push(nomeLimpo);
         localStorage.setItem("nomesSalvos", JSON.stringify(lista));
         atualizarDatalist("nomesSalvos", "nomesSalvosList");
     }
 }
 
 function salvarSetor(nome) {
-    if (!nome) return;
+    const setorLimpo = formatarCaixaAlta(nome);
+    if (!setorLimpo) return;
+
     let lista = JSON.parse(localStorage.getItem("setoresSalvos")) || [];
-    if (!lista.includes(nome)) {
-        lista.push(nome);
+    if (!lista.includes(setorLimpo)) {
+        lista.push(setorLimpo);
         localStorage.setItem("setoresSalvos", JSON.stringify(lista));
         atualizarDatalist("setoresSalvos", "setoresList");
     }
@@ -148,23 +165,32 @@ function extrairDadosFormulario() {
     const dados = {
         data: dataSelecionada.toLocaleDateString("pt-BR"),
         observacoes: document.getElementById("observacoes").value.trim(),
-        setores: []
+        setores: [],
+        errosValidacao: []
     };
 
     const setoresDivs = document.querySelectorAll(".setor");
 
     setoresDivs.forEach(setor => {
-        const nomeSetor = setor.querySelector(".input-setor").value.trim();
+        const rawSetor = setor.querySelector(".input-setor").value;
+        const nomeSetor = formatarCaixaAlta(rawSetor);
         if (!nomeSetor) return;
 
         const nomesDivs = setor.querySelectorAll(".nome-proc");
         const funcionarios = [];
 
         nomesDivs.forEach(n => {
-            const nome = n.querySelector(".input-nome").value.trim();
+            const rawNome = n.querySelector(".input-nome").value;
+            const nomeFormatado = formatarCaixaAlta(rawNome);
             const qtd = parseInt(n.querySelector(".input-proc").value);
-            if (nome && qtd > 0) {
-                funcionarios.push({ nome, qtd });
+
+            if (rawNome.trim().length > 0) {
+                // Validação de Nome + Sobrenome
+                if (!validarNomeSobrenome(nomeFormatado)) {
+                    dados.errosValidacao.push(`O funcionário "${rawNome.trim()}" precisa conter NOME e SOBRENOME.`);
+                } else if (qtd > 0) {
+                    funcionarios.push({ nome: nomeFormatado, qtd });
+                }
             }
         });
 
@@ -183,8 +209,14 @@ function extrairDadosFormulario() {
 function gerarRelatorio() {
     const dados = extrairDadosFormulario();
 
+    // Se houverem erros de validação de nome/sobrenome, impede o prosseguimento
+    if (dados.errosValidacao.length > 0) {
+        alert("⚠️ ATENÇÃO:\n\n" + dados.errosValidacao.join("\n") + "\n\nPor favor, corrija para continuar.");
+        return;
+    }
+
     if (dados.setores.length === 0) {
-        alert("Preencha pelo menos um setor com funcionários e quantidades de exames.");
+        alert("Preencha pelo menos um setor com funcionários (Nome + Sobrenome) e quantidades de exames.");
         return;
     }
 
@@ -222,11 +254,17 @@ function enviarParaWhatsApp() {
 /* ---------------- ENVIAR GOOGLE SHEETS ---------------- */
 async function enviarParaGoogleSheets() {
     if (!GOOGLE_SCRIPT_URL || GOOGLE_SCRIPT_URL === "SUA_URL_DO_GOOGLE_APPS_SCRIPT_AQUI") {
-        alert("Por favor, configure a URL do seu Google Apps Script no arquivo script.js!");
+        alert("Por favor, configure a URL do seu Google Apps Script no arquivo index.js!");
         return;
     }
 
     const dados = extrairDadosFormulario();
+
+    if (dados.errosValidacao.length > 0) {
+        alert("⚠️ ATENÇÃO:\n\n" + dados.errosValidacao.join("\n") + "\n\nPor favor, corrija antes de salvar.");
+        return;
+    }
+
     const btnPlanilha = document.getElementById("btnEnviarPlanilha");
 
     try {
