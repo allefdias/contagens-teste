@@ -70,6 +70,7 @@ h1 {
 
 .setor-info input[type="text"] {
     width: 100%;
+    text-transform: uppercase; /* Força exibição do setor em maiúsculas */
 }
 
 .setor-info label {
@@ -97,6 +98,7 @@ h1 {
 
 .input-nome {
     flex: 3;
+    text-transform: uppercase; /* Força exibição do nome do funcionário em maiúsculas */
 }
 
 .input-proc {
